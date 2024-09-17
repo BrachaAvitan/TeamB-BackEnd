@@ -1,0 +1,42 @@
+using App.API.Profiles;
+using App.BL.Profiles;
+using App.BL.Services;
+using App.DA;
+using App.DA.DataContext;
+using App.DA.Interfaces;
+using App.DA.Reposetoris;
+using Microsoft.EntityFrameworkCore;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Add services to the container.
+
+builder.Services.AddControllers();
+// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+builder.Services.AddScoped<IBookRepository, BookRepository>();
+builder.Services.AddScoped<IBookService, BookService>();
+builder.Services.AddAutoMapper(typeof(ClientBookProfile).Assembly, typeof(BookProfile).Assembly);
+builder.Services.AddDbContext<BooksContext>(options =>
+{
+    options.UseSqlServer(builder.Configuration.GetConnectionString("sql"));
+});
+
+var app = builder.Build();
+
+// Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
+app.UseHttpsRedirection();
+
+app.UseAuthorization();
+
+app.MapControllers();
+
+app.Run();
